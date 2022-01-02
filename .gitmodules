@@ -1,0 +1,6 @@
+[submodule "ext/ktl"]
+	path = ext/ktl
+	url = https://github.com/karnkaul/ktl
+[submodule "ext/glfw"]
+	path = ext/glfw
+	url = https://github.com/GLFW/glfw
