@@ -6,6 +6,22 @@
 
 namespace dibs {
 namespace {
+struct Glfw {
+	detail::UniqueGlfw instance;
+	detail::UniqueWindow window;
+};
+
+Result<Glfw> makeGlfw(char const* title, uvec2 const extent, Instance::Flags const flags) noexcept {
+	if (detail::g_window) { return Error::eDuplicateInstance; }
+	if (extent.x == 0U || extent.y == 0U) { return Error::eInvalidExtent; }
+	auto instance = detail::GlfwInstance::make();
+	if (!instance) { return Error::eGlfwInitFailure; }
+	if (!glfwVulkanSupported()) { return Error::eUnsupportedPlatform; }
+	auto window = instance->makeWindow(title, extent, flags);
+	if (!window) { return Error::eWindowCreationFailure; }
+	return Glfw{std::move(instance), std::move(window)};
+}
+
 bool centre(GLFWwindow* window) {
 	auto const monitor = glfwGetPrimaryMonitor();
 	if (!monitor) { return false; }
@@ -22,8 +38,7 @@ bool centre(GLFWwindow* window) {
 using Clock = std::chrono::steady_clock;
 
 struct Instance::Impl {
-	detail::UniqueGlfw glfw;
-	detail::UniqueWindow window;
+	Glfw glfw;
 	Clock::time_point elapsed = Clock::now();
 };
 
@@ -36,7 +51,7 @@ Instance::~Instance() noexcept {
 
 bool Instance::closing() const noexcept {
 	assert(m_impl);
-	return glfwWindowShouldClose(m_impl->window);
+	return glfwWindowShouldClose(m_impl->glfw.window);
 }
 
 Time Instance::poll() noexcept {
@@ -47,20 +62,13 @@ Time Instance::poll() noexcept {
 }
 
 Result<Instance> Instance::Builder::operator()() const {
-	if (detail::g_window) { return Error::eDuplicateInstance; }
-	if (m_extent.x == 0U || m_extent.y == 0U) { return Error::eInvalidExtent; }
-	auto glfwInst = detail::GlfwInstance::make();
-	if (!glfwInst) { return Error::eGlfwInitFailure; }
-	// TODO: after integrating dyvk
-	// if (!glfwVulkanSupported()) { return Error::eUnsupportedPlatform; }
-	auto window = glfwInst->makeWindow(m_title.data(), m_extent, m_flags);
-	if (!window) { return Error::eWindowCreationFailure; }
-	if (!centre(window)) { log("Failed to centre window"); }
-	// all checks passed, set globals
+	auto glfw = makeGlfw(m_title.data(), m_extent, m_flags);
+	if (!glfw) { return glfw.error(); }
+	if (!centre(glfw->window)) { log("Failed to centre window"); }
+	// all checks passed
 	auto impl = std::make_unique<Instance::Impl>();
-	impl->glfw = std::move(glfwInst);
-	impl->window = std::move(window);
-	if (!m_flags.test(Flag::eHidden)) { glfwShowWindow(impl->window); }
+	impl->glfw = std::move(glfw).value();
+	if (!m_flags.test(Flag::eHidden)) { glfwShowWindow(impl->glfw.window); }
 	return Instance(std::move(impl));
 }
 } // namespace dibs

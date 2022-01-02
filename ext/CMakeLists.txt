@@ -9,3 +9,6 @@ set(GLFW_BUILD_EXAMPLES OFF)
 set(GLFW_BUILD_TESTS OFF)
 add_subdirectory(glfw)
 export(EXPORT glfwTargets)
+
+# dyvk
+add_subdirectory(dyvk)

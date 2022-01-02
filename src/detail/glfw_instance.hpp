@@ -1,7 +1,6 @@
 #pragma once
 
-// TODO: after integrating dyvk
-//#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.h>
 
 #include <GLFW/glfw3.h>
 #include <detail/unique.hpp>

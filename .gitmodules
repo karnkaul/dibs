@@ -4,3 +4,6 @@
 [submodule "ext/glfw"]
 	path = ext/glfw
 	url = https://github.com/GLFW/glfw
+[submodule "ext/dyvk"]
+	path = ext/dyvk
+	url = https://github.com/karnkaul/dyvk
