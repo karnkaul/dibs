@@ -1,5 +1,6 @@
 #include <detail/glfw_instance.hpp>
 #include <detail/log.hpp>
+#include <detail/vk_instance.hpp>
 #include <dibs/dibs.hpp>
 #include <dibs/dibs_version.hpp>
 #include <cassert>
@@ -13,7 +14,7 @@ struct Glfw {
 
 Result<Glfw> makeGlfw(char const* title, uvec2 const extent, Instance::Flags const flags) noexcept {
 	if (detail::g_window) { return Error::eDuplicateInstance; }
-	if (extent.x == 0U || extent.y == 0U) { return Error::eInvalidExtent; }
+	if (extent.x == 0U || extent.y == 0U) { return Error::eInvalidArg; }
 	auto instance = detail::GlfwInstance::make();
 	if (!instance) { return Error::eGlfwInitFailure; }
 	if (!glfwVulkanSupported()) { return Error::eUnsupportedPlatform; }
@@ -39,6 +40,7 @@ using Clock = std::chrono::steady_clock;
 
 struct Instance::Impl {
 	Glfw glfw;
+	detail::VKInstance vulkan;
 	Clock::time_point elapsed = Clock::now();
 };
 
@@ -64,10 +66,19 @@ Time Instance::poll() noexcept {
 Result<Instance> Instance::Builder::operator()() const {
 	auto glfw = makeGlfw(m_title.data(), m_extent, m_flags);
 	if (!glfw) { return glfw.error(); }
+	auto makeSurface = [&glfw](vk::Instance inst) {
+		VkSurfaceKHR ret;
+		glfwCreateWindowSurface(inst, glfw->window, nullptr, &ret);
+		return vk::SurfaceKHR(ret);
+	};
+	auto vulkan = detail::VKInstance::make(std::move(makeSurface), detail::VKInstance::Flag::eValidation);
+	if (!vulkan) { return vulkan.error(); }
 	if (!centre(glfw->window)) { log("Failed to centre window"); }
 	// all checks passed
+	log("Using GPU: {}", vulkan->gpu.properties.deviceName);
 	auto impl = std::make_unique<Instance::Impl>();
 	impl->glfw = std::move(glfw).value();
+	impl->vulkan = std::move(vulkan).value();
 	if (!m_flags.test(Flag::eHidden)) { glfwShowWindow(impl->glfw.window); }
 	return Instance(std::move(impl));
 }

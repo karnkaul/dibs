@@ -4,6 +4,10 @@
 [submodule "ext/glfw"]
 	path = ext/glfw
 	url = https://github.com/GLFW/glfw
+	shallow = true
 [submodule "ext/dyvk"]
 	path = ext/dyvk
 	url = https://github.com/karnkaul/dyvk
+[submodule "ext/vk-bootstrap"]
+	path = ext/vk-bootstrap
+	url = https://github.com/charles-lunarg/vk-bootstrap
