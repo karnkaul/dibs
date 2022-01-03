@@ -1,21 +1,12 @@
 #pragma once
 #include <dibs/error.hpp>
+#include <dibs/vk_types.hpp>
 #include <ktl/async/kfunction.hpp>
 #include <ktl/enum_flags/enum_flags.hpp>
 #include <vulkan/vulkan.hpp>
 
 namespace dibs::detail {
 using MakeSurface = ktl::kfunction<vk::SurfaceKHR(vk::Instance)>;
-
-struct VKGpu {
-	vk::PhysicalDeviceProperties properties;
-	vk::PhysicalDevice device;
-};
-
-struct VKQueue {
-	vk::Queue queue;
-	std::uint32_t family{};
-};
 
 struct VKInstance {
 	enum class Flag { eValidation };

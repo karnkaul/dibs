@@ -22,11 +22,27 @@ class Instance {
 	bool closing() const noexcept;
 	Time poll() noexcept;
 
+	uvec2 framebufferSize() const noexcept;
+	uvec2 windowSize() const noexcept;
+
   private:
 	struct Impl;
 	Instance(std::unique_ptr<Impl>&& impl) noexcept;
-
 	std::unique_ptr<Impl> m_impl;
+	friend class Bridge;
+	friend class Frame;
+};
+
+class Frame {
+  public:
+	[[nodiscard]] Frame(Instance const& instance);
+	~Frame();
+
+	uvec2 extent() const noexcept;
+
+  private:
+	Instance const& m_instance;
+	friend class Bridge;
 };
 
 class Instance::Builder {

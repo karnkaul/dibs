@@ -9,5 +9,9 @@ int main() {
 		std::cerr << "fail! error: " << (int)instance.error() << "\n";
 		return 0;
 	}
-	while (!instance->closing()) { instance->poll(); }
+	while (!instance->closing()) {
+		instance->poll();
+		auto frame = dibs::Frame(*instance);
+		// tick / draw
+	}
 }

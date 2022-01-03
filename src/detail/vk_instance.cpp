@@ -2,7 +2,7 @@
 #include <detail/vk_instance.hpp>
 
 namespace dibs::detail {
-Result<VKInstance> VKInstance::make(MakeSurface makeSurface, Flags flags) {
+Result<VKInstance> VKInstance::make(MakeSurface const makeSurface, Flags const flags) {
 	if (!makeSurface) { return Error::eInvalidArg; }
 	vk::DynamicLoader dl;
 	VULKAN_HPP_DEFAULT_DISPATCHER.init(dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr"));
@@ -20,7 +20,9 @@ Result<VKInstance> VKInstance::make(MakeSurface makeSurface, Flags flags) {
 	vkb::PhysicalDeviceSelector vpds(vi.value());
 	auto vpd = vpds.require_present().prefer_gpu_device_type(vkb::PreferredDeviceType::discrete).set_surface(surface).select();
 	if (!vpd) { return Error::eVulkanInitFailure; }
-	ret.gpu = {vk::PhysicalDeviceProperties(vpd->properties), vk::PhysicalDevice(vpd->physical_device)};
+	ret.gpu.properties = vk::PhysicalDeviceProperties(vpd->properties);
+	ret.gpu.device = vk::PhysicalDevice(vpd->physical_device);
+	ret.gpu.formats = ret.gpu.device.getSurfaceFormatsKHR(*ret.surface);
 	vkb::DeviceBuilder vdb(vpd.value());
 	auto vd = vdb.build();
 	if (!vd) { return Error::eVulkanInitFailure; }

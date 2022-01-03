@@ -14,7 +14,10 @@ else()
   set(gcc_like FALSE)
 endif()
 
-target_compile_definitions(interface INTERFACE $<$<BOOL:${MSVC_RUNTIME}>:WIN32_LEAN_AND_MEAN NOMINMAX _CRT_SECURE_NO_WARNINGS>)
+target_compile_definitions(interface INTERFACE
+  $<$<CONFIG:Debug>:DIBS_DEBUG>
+  $<$<BOOL:${MSVC_RUNTIME}>:WIN32_LEAN_AND_MEAN NOMINMAX _CRT_SECURE_NO_WARNINGS>
+)
 target_compile_features(interface INTERFACE ${cxx_standard})
 
 # options
