@@ -4,5 +4,10 @@
 
 int main() {
 	std::cout << "dibs v" << dibs::version << '\n';
-	auto instance = dibs::Instance();
+	auto instance = dibs::Instance::Builder{}();
+	if (!instance) {
+		std::cerr << "fail! error: " << (int)instance.error() << "\n";
+		return 0;
+	}
+	while (!instance->closing()) { instance->poll(); }
 }

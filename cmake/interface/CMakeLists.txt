@@ -22,7 +22,7 @@ add_library(options INTERFACE)
 add_library(${project_name}::options ALIAS options)
 
 target_compile_options(options INTERFACE
-  $<$<BOOL:${gcc_like}>:-Wall -Wextra -Wunused -Werror=return-type $<$<NOT:$<CONFIG:Debug>>:-Werror>>
+  $<$<BOOL:${gcc_like}>:-Wall -Wextra -Wunused -Werror=return-type -Wconversion $<$<NOT:$<CONFIG:Debug>>:-Werror>>
   $<$<BOOL:${WIN64_MSBUILD}>:/MP $<$<NOT:$<CONFIG:Debug>>:/WX>>
 )
 target_link_libraries(options INTERFACE ${project_name}::interface)
@@ -30,4 +30,4 @@ target_link_libraries(options INTERFACE ${project_name}::interface)
 install_targets(TARGETS interface options EXPORT ${PROJECT_NAME}-targets)
 install_export_package(EXPORT ${PROJECT_NAME}-targets NAMESPACE ${project_name} PACKAGE ${PROJECT_NAME})
 install_package_config(PACKAGE ${PROJECT_NAME})
-export_package_to_build_tree(PACKAGE ${PROJECT_NAME})
+export_package_to_build_tree(PACKAGE ${PROJECT_NAME} NAMESPACE ${project_name})

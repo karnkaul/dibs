@@ -56,6 +56,9 @@ if(GIT_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git")
   endif()
 endif()
 
+# external
+add_subdirectory(ext)
+
 add_subdirectory(cmake/interface)	# import interface library
 
 # header text
@@ -99,12 +102,14 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 target_link_libraries(${PROJECT_NAME} 
   PUBLIC
+    ktl::ktl
+    dyvk::dyvk
+    glfw
     ${PROJECT_NAME}::interface
   PRIVATE
     ${PROJECT_NAME}::options
 )
 
-target_sources(${PROJECT_NAME} PRIVATE src/main.cpp)
 include(dibs_headers.cmake)
 add_subdirectory(src)
 target_source_group(TARGET ${PROJECT_NAME})
