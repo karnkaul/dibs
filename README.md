@@ -6,6 +6,13 @@ A small quick-start library that provides a GLFW / Vulkan backend for Dear ImGui
 
 WIP
 
+## External Dependencies
+
+- [glfw](https://github.com/GLFW/glfw)
+- [vk-bootstrap](https://github.com/charles-lunarg/vk-bootstrap)
+- [dyvk](https://github.com/karnkaul/dyvk)
+- [ktl](https://github.com/karnkaul/ktl)
+
 [Original repository](https://github.com/cpp-gamedev/dibs)
 
 [LICENCE](LICENSE)

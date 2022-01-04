@@ -12,3 +12,24 @@ export(EXPORT glfwTargets)
 
 # dyvk
 add_subdirectory(dyvk)
+
+# vk-bootstrap
+set(VK_BOOTSTRAP_VULKAN_HEADER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/dyvk/include" CACHE STRING "" FORCE)
+if(NOT EXISTS "${VK_BOOTSTRAP_VULKAN_HEADER_DIR}/vulkan/vulkan.h")
+  message(FATAL_ERROR "Missing vulkan headers")
+endif()
+
+add_subdirectory(vk-bootstrap)
+install(TARGETS
+    vk-bootstrap
+    vk-bootstrap-compiler-warnings
+    vk-bootstrap-vulkan-headers
+  EXPORT
+    vk-bootstrap-targets
+)
+install(EXPORT vk-bootstrap-targets
+  FILE vk-bootstrap-targets.cmake
+  NAMESPACE vk-bootstrap::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)
+export(EXPORT vk-bootstrap-targets)

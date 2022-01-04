@@ -6,8 +6,9 @@ enum class Error {
 	eDuplicateInstance,
 	eUnsupportedPlatform,
 	eGlfwInitFailure,
+	eVulkanInitFailure,
 	eWindowCreationFailure,
-	eInvalidExtent,
+	eInvalidArg,
 };
 
 template <typename T>

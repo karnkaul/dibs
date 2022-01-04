@@ -107,6 +107,7 @@ target_link_libraries(${PROJECT_NAME}
     glfw
     ${PROJECT_NAME}::interface
   PRIVATE
+    vk-bootstrap::vk-bootstrap
     ${PROJECT_NAME}::options
 )
 
