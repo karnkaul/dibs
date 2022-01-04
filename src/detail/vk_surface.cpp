@@ -1,3 +1,4 @@
+#include <detail/defer_queue.hpp>
 #include <detail/expect.hpp>
 #include <detail/log.hpp>
 #include <detail/vk_surface.hpp>
@@ -73,10 +74,12 @@ vk::Result VKSurface::refresh(VKDevice const& device, uvec2 const framebuffer) {
 	EXPECT(ret == vk::Result::eSuccess);
 	if (ret == vk::Result::eSuccess) {
 		trace("Swapchain resized: {}x{}", info.imageExtent.width, info.imageExtent.height);
-		// TODO: need to defer deletion of swapchain image views (+ swapchain) after 2+ frames
-		// this device stall circumvents the problem for time being
-		device.device.waitIdle();
-		retired = std::move(swapchain);
+		if (deferQueue) {
+			deferQueue->defer(std::move(swapchain)); // defer destruction of current swapchain and its image views if possible
+		} else {
+			device.device.waitIdle(); // otherwise stall device
+		}
+		swapchain = {};
 		swapchain.swapchain = vk::UniqueSwapchainKHR(vks, device.device);
 		auto const images = device.device.getSwapchainImagesKHR(*swapchain.swapchain);
 		for (std::size_t i = 0; i < images.size(); ++i) {

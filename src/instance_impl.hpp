@@ -1,4 +1,5 @@
 #pragma once
+#include <detail/defer_queue.hpp>
 #include <detail/glfw_instance.hpp>
 #include <detail/vk_instance.hpp>
 #include <detail/vk_surface.hpp>
@@ -37,6 +38,7 @@ struct Instance::Impl {
 	VKDevice device;
 	detail::VKSurface surface;
 	FrameSync frameSync;
+	detail::DeferQueue deferQueue;
 	vk::UniqueRenderPass renderPass;
 	std::optional<detail::VKSurface::Acquire> acquired;
 	Clock::time_point elapsed = Clock::now();

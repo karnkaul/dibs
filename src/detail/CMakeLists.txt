@@ -1,4 +1,5 @@
 target_sources(${PROJECT_NAME} PRIVATE
+  defer_queue.hpp
   expect.hpp
   glfw_instance.hpp
   log.hpp

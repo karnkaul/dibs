@@ -208,6 +208,7 @@ Frame::~Frame() {
 		if (res == vk::Result::eSuccess) { res = impl->surface.present(impl->device, *impl->acquired, *sync.present, fb); }
 		// swap buffers
 		impl->frameSync.next();
+		impl->deferQueue.next();
 		// reset acquired image (submitted to presentation engine)
 		impl->acquired.reset();
 		EXPECT(res == vk::Result::eSuccess || res == vk::Result::eSuboptimalKHR || res == vk::Result::eErrorOutOfDateKHR);
@@ -243,6 +244,7 @@ Result<Instance> Instance::Builder::operator()() const {
 	impl->vulkan = std::move(vulkan).value();
 	impl->device = vkd;
 	impl->surface = std::move(surface);
+	impl->surface.deferQueue = &impl->deferQueue;
 	impl->frameSync = initFrameSync(vkd.device, vkd.queue.family);
 	impl->renderPass = makeRenderPass(vkd.device, impl->surface.info.imageFormat, false);
 	if (!m_flags.test(Flag::eHidden)) { glfwShowWindow(impl->glfw.window); }

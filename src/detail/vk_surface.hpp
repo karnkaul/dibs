@@ -31,8 +31,8 @@ struct VKSurface {
 
 	vk::SwapchainCreateInfoKHR info;
 	VKSwapchain swapchain;
-	VKSwapchain retired;
 	vk::SurfaceKHR surface;
+	class DeferQueue* deferQueue{};
 
 	static vk::SwapchainCreateInfoKHR makeInfo(VKDevice const& device, vk::SurfaceKHR surface, uvec2 framebuffer) noexcept;
 
