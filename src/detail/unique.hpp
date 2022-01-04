@@ -23,7 +23,7 @@ struct Unique {
 	}
 
 	constexpr explicit operator bool() const noexcept { return t != T{}; }
-	constexpr bool operator==(Unique const&) const = default;
+	bool operator==(Unique const&) const = default;
 	constexpr T const& get() const noexcept { return t; }
 	constexpr T& get() noexcept { return t; }
 	constexpr operator T const&() const noexcept { return get(); }

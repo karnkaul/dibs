@@ -164,10 +164,12 @@ Frame::Frame(Instance const& instance, Clear const& clear) : m_clear(clear), m_i
 	auto& sync = impl->frameSync.get();
 	// acquire next swapchain image to render to
 	impl->acquired = impl->surface.acquire(impl->device, *sync.draw, m_instance.framebufferSize());
+	impl->imgui->newFrame();
 }
 
 Frame::~Frame() {
 	auto impl = m_instance.m_impl.get();
+	impl->imgui->endFrame();
 	if (impl->acquired) {
 		static constexpr auto max_wait_v = std::numeric_limits<std::uint64_t>::max();
 		auto& sync = impl->frameSync.get();
@@ -194,7 +196,7 @@ Frame::~Frame() {
 		rpbi.clearValueCount = 1U;
 		rpbi.pClearValues = &cv;
 		sync.cb.beginRenderPass(rpbi, vk::SubpassContents::eInline);
-		// TODO: render Dear ImGui draw data
+		impl->imgui->render(sync.cb);
 		sync.cb.endRenderPass();
 		// transition image for presentation
 		ib.access = {vk::AccessFlagBits::eColorAttachmentWrite, {}};
@@ -237,6 +239,9 @@ Result<Instance> Instance::Builder::operator()() const {
 	detail::VKSurface surface;
 	surface.surface = *vulkan->surface;
 	if (surface.refresh(vkd, getFramebufferSize(glfw->window)) != vk::Result::eSuccess) { return Error::eVulkanInitFailure; }
+	auto renderPass = makeRenderPass(vkd.device, surface.info.imageFormat, false);
+	auto imgui = detail::ImGuiInstance::make(vkd, {glfw->window, *renderPass, 2U, surface.info.minImageCount});
+	if (!imgui) { return Error::ImGuiInitFailure; }
 	// all checks passed
 	log("Using GPU: {}", vulkan->gpu.properties.deviceName);
 	auto impl = std::make_unique<Instance::Impl>();
@@ -246,7 +251,8 @@ Result<Instance> Instance::Builder::operator()() const {
 	impl->surface = std::move(surface);
 	impl->surface.deferQueue = &impl->deferQueue;
 	impl->frameSync = initFrameSync(vkd.device, vkd.queue.family);
-	impl->renderPass = makeRenderPass(vkd.device, impl->surface.info.imageFormat, false);
+	impl->renderPass = std::move(renderPass);
+	impl->imgui = std::move(imgui);
 	if (!m_flags.test(Flag::eHidden)) { glfwShowWindow(impl->glfw.window); }
 	return Instance(std::move(impl));
 }

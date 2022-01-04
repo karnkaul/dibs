@@ -102,9 +102,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 target_link_libraries(${PROJECT_NAME} 
   PUBLIC
+    glfw
     ktl::ktl
     dyvk::dyvk
-    glfw
+    dear-imgui::dear-imgui
     ${PROJECT_NAME}::interface
   PRIVATE
     vk-bootstrap::vk-bootstrap
@@ -124,7 +125,19 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/${${project_name}_version_file}.in")
   )
 endif()
 
-install_and_export_target(TARGET ${PROJECT_NAME})
+install(TARGETS ${PROJECT_NAME} interface options EXPORT ${PROJECT_NAME}-targets)
+install(EXPORT ${PROJECT_NAME}-targets
+  FILE ${PROJECT_NAME}-targets.cmake
+  NAMESPACE ${PROJECT_NAME}::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/" "${CMAKE_CURRENT_BINARY_DIR}/include/"
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  FILES_MATCHING PATTERN "*.hpp"
+)
+install_package_config(PACKAGE ${PROJECT_NAME})
+install_package_version(PACKAGE ${PROJECT_NAME} VERSION ${${PROJECT_NAME}_version})
+export_package_to_build_tree(PACKAGE ${PROJECT_NAME})
 
 # examples
 if(DIBS_BUILD_EXAMPLES)
