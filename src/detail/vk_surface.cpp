@@ -73,12 +73,15 @@ vk::Result VKSurface::refresh(VKDevice const& device, uvec2 const framebuffer) {
 	EXPECT(ret == vk::Result::eSuccess);
 	if (ret == vk::Result::eSuccess) {
 		trace("Swapchain resized: {}x{}", info.imageExtent.width, info.imageExtent.height);
+		// TODO: need to defer deletion of swapchain image views (+ swapchain) after 2+ frames
+		// this device stall circumvents the problem for time being
+		device.device.waitIdle();
 		retired = std::move(swapchain);
 		swapchain.swapchain = vk::UniqueSwapchainKHR(vks, device.device);
 		auto const images = device.device.getSwapchainImagesKHR(*swapchain.swapchain);
 		for (std::size_t i = 0; i < images.size(); ++i) {
 			swapchain.views.push_back(makeImageView(device.device, images[i], info.imageFormat));
-			swapchain.images.push_back({images[i], *swapchain.views[i]});
+			swapchain.images.push_back({images[i], *swapchain.views[i], info.imageExtent});
 		}
 	}
 	return ret;

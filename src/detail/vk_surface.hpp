@@ -8,6 +8,7 @@ namespace dibs::detail {
 struct VKImage {
 	vk::Image image;
 	vk::ImageView view;
+	vk::Extent2D extent{};
 };
 
 struct VKSwapchain {

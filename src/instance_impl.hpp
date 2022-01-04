@@ -21,6 +21,7 @@ struct FrameSync {
 		vk::UniqueFence drawn;
 		vk::UniqueCommandPool pool;
 		vk::CommandBuffer cb;
+		vk::UniqueFramebuffer framebuffer;
 	};
 
 	Sync sync[frames_v];
@@ -36,6 +37,7 @@ struct Instance::Impl {
 	VKDevice device;
 	detail::VKSurface surface;
 	FrameSync frameSync;
+	vk::UniqueRenderPass renderPass;
 	std::optional<detail::VKSurface::Acquire> acquired;
 	Clock::time_point elapsed = Clock::now();
 };

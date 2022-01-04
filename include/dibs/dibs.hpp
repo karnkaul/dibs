@@ -2,6 +2,7 @@
 #include <dibs/error.hpp>
 #include <dibs/vec2.hpp>
 #include <ktl/enum_flags/enum_flags.hpp>
+#include <array>
 #include <chrono>
 #include <memory>
 
@@ -35,12 +36,17 @@ class Instance {
 
 class Frame {
   public:
-	[[nodiscard]] Frame(Instance const& instance);
+	// TODO: 32-bit colour
+	using Clear = std::array<float, 4>;
+
+	[[nodiscard]] Frame(Instance const& instance, Clear const& clear = {});
 	~Frame();
 
+	bool ready() const noexcept;
 	uvec2 extent() const noexcept;
 
   private:
+	Clear m_clear;
 	Instance const& m_instance;
 	friend class Bridge;
 };

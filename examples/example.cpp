@@ -11,7 +11,7 @@ int main() {
 	}
 	while (!instance->closing()) {
 		instance->poll();
-		auto frame = dibs::Frame(*instance);
+		auto frame = dibs::Frame(*instance, {0.4f, 0.2f, 0.2f, 1.0f});
 		// tick / draw
 	}
 }
