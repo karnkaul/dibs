@@ -5,11 +5,11 @@
 [submodule "ext/dyvk"]
 	path = ext/dyvk
 	url = https://github.com/karnkaul/dyvk
-[submodule "ext/vk-bootstrap"]
-	path = ext/vk-bootstrap
-	url = https://github.com/charles-lunarg/vk-bootstrap
-	shallow = true
 [submodule "ext/dear_imgui/src"]
 	path = ext/dear_imgui/src
 	url = https://github.com/ocornut/imgui
+	shallow = true
+[submodule "ext/vk-bootstrap"]
+	path = ext/vk-bootstrap
+	url = https://github.com/karnkaul/vk-bootstrap
 	shallow = true
