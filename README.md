@@ -6,6 +6,14 @@ A small quick-start library that provides a GLFW / Vulkan backend for Dear ImGui
 
 WIP
 
+## Usage
+
+### Requirements
+
+1. CMake 3.14+
+1. C++20 compiler
+1. Windows / GNU-Linux with X/Wayland
+
 ## External Dependencies
 
 - [glfw](https://github.com/GLFW/glfw)
@@ -13,6 +21,6 @@ WIP
 - [dyvk](https://github.com/karnkaul/dyvk)
 - [ktl](https://github.com/karnkaul/ktl)
 
-[Original repository](https://github.com/cpp-gamedev/dibs)
+[Original repository](https://github.com/karnkaul/dibs)
 
 [LICENCE](LICENSE)

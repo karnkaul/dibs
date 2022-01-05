@@ -1,6 +1,3 @@
-[submodule "ext/ktl"]
-	path = ext/ktl
-	url = https://github.com/karnkaul/ktl
 [submodule "ext/glfw"]
 	path = ext/glfw
 	url = https://github.com/GLFW/glfw
@@ -11,3 +8,8 @@
 [submodule "ext/vk-bootstrap"]
 	path = ext/vk-bootstrap
 	url = https://github.com/charles-lunarg/vk-bootstrap
+	shallow = true
+[submodule "ext/dear_imgui/src"]
+	path = ext/dear_imgui/src
+	url = https://github.com/ocornut/imgui
+	shallow = true

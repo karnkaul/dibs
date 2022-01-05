@@ -1,6 +1,7 @@
 #pragma once
 #include <detail/defer_queue.hpp>
 #include <detail/glfw_instance.hpp>
+#include <detail/imgui_instance.hpp>
 #include <detail/vk_instance.hpp>
 #include <detail/vk_surface.hpp>
 #include <dibs/dibs.hpp>
@@ -40,6 +41,7 @@ struct Instance::Impl {
 	FrameSync frameSync;
 	detail::DeferQueue deferQueue;
 	vk::UniqueRenderPass renderPass;
+	detail::UniqueImGui imgui;
 	std::optional<detail::VKSurface::Acquire> acquired;
 	Clock::time_point elapsed = Clock::now();
 };

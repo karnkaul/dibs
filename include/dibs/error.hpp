@@ -8,6 +8,7 @@ enum class Error {
 	eGlfwInitFailure,
 	eVulkanInitFailure,
 	eWindowCreationFailure,
+	ImGuiInitFailure,
 	eInvalidArg,
 };
 

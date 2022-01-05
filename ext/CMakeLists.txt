@@ -1,6 +1,3 @@
-# ktl
-add_subdirectory(ktl)
-
 # glfw
 set(GLFW_VULKAN_STATIC OFF)
 set(GLFW_INSTALL ON)
@@ -33,3 +30,6 @@ install(EXPORT vk-bootstrap-targets
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
 )
 export(EXPORT vk-bootstrap-targets)
+
+# Dear ImGui
+add_subdirectory(dear_imgui)
