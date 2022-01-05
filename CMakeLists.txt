@@ -10,16 +10,15 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "")
   set(CMAKE_BUILD_TYPE Debug)			# ensure CMAKE_BUILD_TYPE is not empty
 endif()
 
-# cmake-utils
+# ktl
 include(FetchContent)
 set(FETCHCONTENT_QUIET OFF)
 FetchContent_Declare(
-  cmake-utils
-  GIT_REPOSITORY https://github.com/karnkaul/cmake-utils
-  GIT_TAG v1.0.1
+  ktl
+  GIT_REPOSITORY https://github.com/karnkaul/ktl
+  GIT_TAG 303f844
 )
-FetchContent_MakeAvailable(cmake-utils)
-FetchContent_GetProperties(cmake-utils)
+FetchContent_MakeAvailable(ktl)
 
 # project parameters
 set(project_name dibs)
@@ -42,7 +41,6 @@ option(DIBS_BUILD_EXAMPLES "Build dibs examples" ${is_root_project})
 include(CheckPIESupported)
 check_pie_supported()
 include(cmake/platform.cmake)	# set up helper cache variables
-include("${cmake-utils_SOURCE_DIR}/cmake-utils.cmake")
 
 # git operations
 find_package(Git QUIET)

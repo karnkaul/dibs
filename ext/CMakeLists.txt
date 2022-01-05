@@ -1,6 +1,3 @@
-# ktl
-add_subdirectory(ktl)
-
 # glfw
 set(GLFW_VULKAN_STATIC OFF)
 set(GLFW_INSTALL ON)
