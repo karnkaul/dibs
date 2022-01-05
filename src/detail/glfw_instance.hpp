@@ -6,6 +6,10 @@
 #include <detail/unique.hpp>
 #include <dibs/dibs.hpp>
 
+namespace dibs {
+struct Delegates;
+}
+
 namespace dibs::detail {
 struct GlfwInstance {
 	bool init{};
@@ -13,14 +17,20 @@ struct GlfwInstance {
 	bool operator==(GlfwInstance const& rhs) const = default;
 
 	struct Deleter {
-		void operator()(GLFWwindow* window) const noexcept { glfwDestroyWindow(window); }
-		void operator()(GlfwInstance) const noexcept { glfwTerminate(); }
+		void operator()(GLFWwindow* window) const noexcept {
+			detachCallbacks(window);
+			glfwDestroyWindow(window);
+		}
+		void operator()(GlfwInstance) const noexcept {
+			glfwSetErrorCallback(nullptr);
+			glfwTerminate();
+		}
 	};
 
-	static Unique<GlfwInstance, Deleter> make() {
-		if (glfwInit()) { return GlfwInstance{true}; }
-		return {};
-	}
+	static Unique<GlfwInstance, Deleter> make();
+
+	static void attachCallbacks(GLFWwindow* window);
+	static void detachCallbacks(GLFWwindow* window);
 
 	Unique<GLFWwindow*, Deleter> makeWindow(char const* title, uvec2 extent, Instance::Flags flags) const noexcept {
 		using Flag = Instance::Flag;
@@ -28,12 +38,19 @@ struct GlfwInstance {
 		glfwWindowHint(GLFW_DECORATED, flags.test(Flag::eBorderless) ? 0 : 1);
 		glfwWindowHint(GLFW_VISIBLE, 0);
 		glfwWindowHint(GLFW_MAXIMIZED, flags.test(Flag::eMaximized) ? 1 : 0);
-		return glfwCreateWindow(int(extent.x), int(extent.y), title, nullptr, nullptr);
+		auto ret = glfwCreateWindow(int(extent.x), int(extent.y), title, nullptr, nullptr);
+		if (ret) { attachCallbacks(ret); }
+		return ret;
 	}
+};
+
+struct GlfwData {
+	GLFWwindow* window{};
+	Delegates* delegates{};
 };
 
 using UniqueGlfw = Unique<GlfwInstance, GlfwInstance::Deleter>;
 using UniqueWindow = Unique<GLFWwindow*, GlfwInstance::Deleter>;
 
-inline GLFWwindow* g_window{};
+inline GlfwData g_glfwData;
 } // namespace dibs::detail

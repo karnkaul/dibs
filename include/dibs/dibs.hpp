@@ -1,8 +1,7 @@
 #pragma once
 #include <dibs/error.hpp>
-#include <dibs/vec2.hpp>
+#include <dibs/events.hpp>
 #include <ktl/enum_flags/enum_flags.hpp>
-#include <array>
 #include <chrono>
 #include <memory>
 
@@ -15,6 +14,7 @@ class Instance {
 	using Flags = ktl::enum_flags<Flag, std::uint8_t>;
 
 	class Builder;
+	class Signals;
 
 	Instance(Instance&&) noexcept;
 	Instance& operator=(Instance&&) noexcept;
@@ -22,6 +22,7 @@ class Instance {
 
 	bool closing() const noexcept;
 	Time poll() noexcept;
+	Signals signals() const noexcept;
 
 	uvec2 framebufferSize() const noexcept;
 	uvec2 windowSize() const noexcept;
@@ -36,10 +37,9 @@ class Instance {
 
 class Frame {
   public:
-	// TODO: 32-bit colour
-	using Clear = std::array<float, 4>;
+	using Clear = std::uint32_t;
 
-	[[nodiscard]] Frame(Instance const& instance, Clear const& clear = {});
+	[[nodiscard]] Frame(Instance const& instance, Clear clear = 0x222222ff);
 	~Frame();
 
 	bool ready() const noexcept;
@@ -63,5 +63,25 @@ class Instance::Builder {
 	std::string m_title{"Untitled"};
 	uvec2 m_extent{1280U, 720U};
 	Flags m_flags;
+};
+
+class Instance::Signals {
+  public:
+	Signals(class Instance const& instance) noexcept : m_instance(instance) {}
+
+	[[nodiscard]] OnFocus::signal onFocus();
+	[[nodiscard]] OnResize::signal onWindowResize();
+	[[nodiscard]] OnResize::signal onFramebufferResize();
+	[[nodiscard]] OnClosed::signal onClosed();
+	[[nodiscard]] OnKeyEvent::signal onKeyEvent();
+	[[nodiscard]] OnText::signal onText();
+	[[nodiscard]] OnCursor::signal onCursor();
+	[[nodiscard]] OnMouseButton::signal onMouseButton();
+	[[nodiscard]] OnScroll::signal onScroll();
+	[[nodiscard]] OnMaximize::signal onMaximize();
+	[[nodiscard]] OnIconify::signal onIconify();
+
+  private:
+	Instance const& m_instance;
 };
 } // namespace dibs

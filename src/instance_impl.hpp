@@ -33,6 +33,20 @@ struct FrameSync {
 	void next() noexcept { index = (index + 1) % frames_v; }
 };
 
+struct Delegates {
+	OnFocus focus;
+	OnResize windowResize;
+	OnResize framebufferResize;
+	OnClosed closed;
+	OnKeyEvent key;
+	OnText text;
+	OnCursor cursor;
+	OnMouseButton mouseButton;
+	OnScroll scroll;
+	OnMaximize maximized;
+	OnIconify iconified;
+};
+
 struct Instance::Impl {
 	Glfw glfw;
 	detail::VKInstance vulkan;
@@ -42,6 +56,7 @@ struct Instance::Impl {
 	detail::DeferQueue deferQueue;
 	vk::UniqueRenderPass renderPass;
 	detail::UniqueImGui imgui;
+	Delegates delegates;
 	std::optional<detail::VKSurface::Acquire> acquired;
 	Clock::time_point elapsed = Clock::now();
 };
