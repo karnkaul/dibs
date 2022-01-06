@@ -34,9 +34,14 @@ target_sources(${PROJECT_NAME} PRIVATE
 target_source_group(TARGET ${PROJECT_NAME})
 
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-targets)
-install(DIRECTORY src/
+install(FILES
+    src/imconfig.h
+    src/imgui.h
+    src/imconfig.h
+    src/imstb_rectpack.h
+    src/imstb_textedit.h
+    src/imstb_truetype.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-  FILES_MATCHING PATTERN "*.h"
 )
 install(EXPORT dear-imgui-targets
   FILE dear-imgui-targets.cmake
