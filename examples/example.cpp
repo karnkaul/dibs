@@ -10,9 +10,11 @@ int main() {
 		std::cerr << "fail! error: " << (int)instance.error() << '\n';
 		return 0;
 	}
+	auto closed = instance->signals().onClosed();
+	closed += []() { std::cout << "closed\n"; };
 	while (!instance->closing()) {
 		instance->poll();
-		auto frame = dibs::Frame(*instance, {0.4f, 0.2f, 0.2f, 1.0f});
+		auto frame = dibs::Frame(*instance, 0x663333ff);
 		// tick / draw
 		static bool s_showDemo = true;
 		if (s_showDemo) { ImGui::ShowDemoWindow(&s_showDemo); }

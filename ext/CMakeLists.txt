@@ -17,13 +17,6 @@ if(NOT EXISTS "${VK_BOOTSTRAP_VULKAN_HEADER_DIR}/vulkan/vulkan.h")
 endif()
 
 add_subdirectory(vk-bootstrap)
-install(TARGETS
-    vk-bootstrap
-    vk-bootstrap-compiler-warnings
-    vk-bootstrap-vulkan-headers
-  EXPORT
-    vk-bootstrap-targets
-)
 install(EXPORT vk-bootstrap-targets
   FILE vk-bootstrap-targets.cmake
   NAMESPACE vk-bootstrap::
