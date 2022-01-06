@@ -20,6 +20,7 @@ if("${INSTALL}" STREQUAL "")
 endif()
 
 if(CONFIGURE)
+  message(STATUS "Configuring ${BUILD_DIR}/${BUILD_CONFIG}...")
   execute_process(
     COMMAND ${CMAKE_COMMAND} -S . -B ${BUILD_DIR}/${BUILD_CONFIG} -DCMAKE_BUILD_TYPE=${BUILD_CONFIG} --preset=ninja-clang
     COMMAND_ERROR_IS_FATAL ANY
@@ -27,6 +28,7 @@ if(CONFIGURE)
 endif()
 
 if(BUILD)
+  message(STATUS "Building ${BUILD_DIR}/${BUILD_CONFIG}...")
   execute_process(
     COMMAND ${CMAKE_COMMAND} --build ${BUILD_DIR}/${BUILD_CONFIG}
     COMMAND_ERROR_IS_FATAL ANY
@@ -34,6 +36,7 @@ if(BUILD)
 endif()
 
 if(INSTALL)
+  message(STATUS "Installing ${BUILD_DIR}/${BUILD_CONFIG} to ${BUILD_DIR}/${INSTALL_DIR}...")
   execute_process(
     COMMAND ${CMAKE_COMMAND} --install ${BUILD_DIR}/${BUILD_CONFIG} --prefix ${BUILD_DIR}/${INSTALL_DIR}
     COMMAND_ERROR_IS_FATAL ANY
