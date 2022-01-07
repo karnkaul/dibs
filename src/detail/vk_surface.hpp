@@ -1,4 +1,5 @@
 #pragma once
+#include <dibs/error.hpp>
 #include <dibs/vec2.hpp>
 #include <dibs/vk_types.hpp>
 #include <ktl/fixed_vector.hpp>
@@ -17,6 +18,9 @@ struct VKSwapchain {
 	vk::UniqueSwapchainKHR swapchain;
 };
 
+enum class PresentOutcome { eSuccess, eNotReady };
+using PresentResult = ktl::expected<PresentOutcome, vk::Result>;
+
 struct VKSurface {
 	struct Sync {
 		vk::Semaphore wait;
@@ -29,6 +33,8 @@ struct VKSurface {
 		std::uint32_t index{};
 	};
 
+	static constexpr vk::Result refresh_v[] = {vk::Result::eErrorOutOfDateKHR, vk::Result::eSuboptimalKHR};
+
 	vk::SwapchainCreateInfoKHR info;
 	VKSwapchain swapchain;
 	vk::SurfaceKHR surface;
@@ -38,7 +44,7 @@ struct VKSurface {
 
 	vk::Result refresh(VKDevice const& device, uvec2 framebuffer);
 	std::optional<Acquire> acquire(VKDevice const& device, vk::Semaphore signal, uvec2 framebuffer);
-	vk::Result submit(VKDevice const& device, vk::CommandBuffer cb, Sync const& sync, uvec2 framebuffer);
-	vk::Result present(VKDevice const& device, Acquire const& acquired, vk::Semaphore wait, uvec2 framebuffer);
+	vk::Result submit(VKDevice const& device, vk::CommandBuffer cb, Sync const& sync);
+	PresentResult present(VKDevice const& device, Acquire const& acquired, vk::Semaphore wait, uvec2 framebuffer);
 };
 } // namespace dibs::detail

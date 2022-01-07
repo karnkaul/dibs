@@ -1,6 +1,7 @@
 #include <detail/defer_queue.hpp>
 #include <detail/expect.hpp>
 #include <detail/log.hpp>
+#include <detail/vk_instance.hpp>
 #include <detail/vk_surface.hpp>
 #include <algorithm>
 #include <limits>
@@ -33,7 +34,15 @@ constexpr vk::Extent2D imageExtent(vk::SurfaceCapabilitiesKHR const& caps, uvec2
 	return vk::Extent2D{x, y};
 }
 
-constexpr bool needsRefresh(vk::Result const result) noexcept { return result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR; }
+constexpr PresentResult presentResult(vk::Result const result) noexcept {
+	switch (result) {
+	case vk::Result::eSuccess: return PresentOutcome::eSuccess;
+	case vk::Result::eSuboptimalKHR:
+	case vk::Result::eErrorOutOfDateKHR: return PresentOutcome::eNotReady;
+	default: break;
+	}
+	return result;
+}
 
 vk::UniqueImageView makeImageView(vk::Device const device, vk::Image const image, vk::Format const format) {
 	vk::ImageViewCreateInfo info;
@@ -93,18 +102,18 @@ vk::Result VKSurface::refresh(VKDevice const& device, uvec2 const framebuffer) {
 std::optional<VKSurface::Acquire> VKSurface::acquire(VKDevice const& device, vk::Semaphore const signal, uvec2 const framebuffer) {
 	static constexpr auto max_wait_v = std::numeric_limits<std::uint64_t>::max();
 	std::uint32_t idx{};
-	auto result = device.device.acquireNextImageKHR(*swapchain.swapchain, max_wait_v, signal, {}, &idx);
-	if (needsRefresh(result)) {
-		if (result = refresh(device, framebuffer); result != vk::Result::eSuccess) { return std::nullopt; }
+	auto result = presentResult(device.device.acquireNextImageKHR(*swapchain.swapchain, max_wait_v, signal, {}, &idx));
+	if (!result) { return std::nullopt; }
+	if (*result == PresentOutcome::eNotReady) {
+		refresh(device, framebuffer);
+		return std::nullopt;
 	}
-	EXPECT(result == vk::Result::eSuccess);
-	if (result != vk::Result::eSuccess) { return std::nullopt; }
 	auto const i = std::size_t(idx);
-	assert(i < swapchain.images.size());
+	EXPECT(i < swapchain.images.size());
 	return Acquire{swapchain.images[i], idx};
 }
 
-vk::Result VKSurface::submit(VKDevice const& device, vk::CommandBuffer const cb, Sync const& sync, uvec2 const framebuffer) {
+vk::Result VKSurface::submit(VKDevice const& device, vk::CommandBuffer const cb, Sync const& sync) {
 	static constexpr vk::PipelineStageFlags waitStages = vk::PipelineStageFlagBits::eTopOfPipe;
 	vk::SubmitInfo submitInfo;
 	submitInfo.pWaitDstStageMask = &waitStages;
@@ -115,21 +124,18 @@ vk::Result VKSurface::submit(VKDevice const& device, vk::CommandBuffer const cb,
 	submitInfo.signalSemaphoreCount = 1U;
 	submitInfo.pSignalSemaphores = &sync.ssignal;
 	auto const ret = device.queue.queue.submit(1U, &submitInfo, sync.fsignal);
-	if (needsRefresh(ret)) { return refresh(device, framebuffer); }
-	EXPECT(ret == vk::Result::eSuccess);
 	return ret;
 }
 
-vk::Result VKSurface::present(VKDevice const& device, Acquire const& acquired, vk::Semaphore const wait, uvec2 const framebuffer) {
+PresentResult VKSurface::present(VKDevice const& device, Acquire const& acquired, vk::Semaphore const wait, uvec2 const framebuffer) {
 	vk::PresentInfoKHR info;
 	info.waitSemaphoreCount = 1;
 	info.pWaitSemaphores = &wait;
 	info.swapchainCount = 1;
 	info.pSwapchains = &*swapchain.swapchain;
 	info.pImageIndices = &acquired.index;
-	auto const ret = device.queue.queue.presentKHR(&info);
-	if (needsRefresh(ret)) { return refresh(device, framebuffer); }
-	EXPECT(ret == vk::Result::eSuccess);
+	auto ret = presentResult(device.queue.queue.presentKHR(&info));
+	if (ret && *ret == PresentOutcome::eNotReady) { refresh(device, framebuffer); }
 	return ret;
 }
 } // namespace dibs::detail

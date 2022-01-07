@@ -221,16 +221,17 @@ Frame::~Frame() {
 		ib({vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::ePresentSrcKHR});
 		// stop recording
 		sync.cb.end();
-		uvec2 const fb = m_instance.framebufferSize();
 		// submit commands and present image
-		auto res = impl->surface.submit(impl->device, sync.cb, {*sync.draw, *sync.present, *sync.drawn}, fb);
-		if (res == vk::Result::eSuccess) { res = impl->surface.present(impl->device, *impl->acquired, *sync.present, fb); }
+		auto const res = impl->surface.submit(impl->device, sync.cb, {*sync.draw, *sync.present, *sync.drawn});
+		EXPECT(res == vk::Result::eSuccess);
+		if (res != vk::Result::eSuccess) { return; }
+		auto const pres = impl->surface.present(impl->device, *impl->acquired, *sync.present, m_instance.framebufferSize());
+		EXPECT(pres);
 		// swap buffers
 		impl->frameSync.next();
 		impl->deferQueue.next();
 		// reset acquired image (submitted to presentation engine)
 		impl->acquired.reset();
-		EXPECT(res == vk::Result::eSuccess || res == vk::Result::eSuboptimalKHR || res == vk::Result::eErrorOutOfDateKHR);
 	}
 }
 
