@@ -19,6 +19,8 @@ target_compile_definitions(interface INTERFACE
   $<$<BOOL:${MSVC_RUNTIME}>:WIN32_LEAN_AND_MEAN NOMINMAX _CRT_SECURE_NO_WARNINGS>
 )
 target_compile_features(interface INTERFACE ${cxx_standard})
+target_compile_options(interface INTERFACE $<$<BOOL:${DIBS_UBSAN}>:-fsanitize=undefined>)
+target_link_options(interface INTERFACE $<$<BOOL:${DIBS_UBSAN}>:-fsanitize=undefined>)
 
 # options
 add_library(options INTERFACE)

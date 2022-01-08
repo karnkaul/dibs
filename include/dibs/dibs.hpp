@@ -1,12 +1,17 @@
 #pragma once
 #include <dibs/error.hpp>
-#include <dibs/events.hpp>
+#include <dibs/event.hpp>
+#include <dibs/rgba.hpp>
 #include <ktl/enum_flags/enum_flags.hpp>
 #include <chrono>
 #include <memory>
+#include <span>
 
 namespace dibs {
-using Time = std::chrono::duration<float>;
+struct Poll {
+	std::span<Event const> events;
+	std::chrono::duration<float> dt{};
+};
 
 class Instance {
   public:
@@ -14,15 +19,13 @@ class Instance {
 	using Flags = ktl::enum_flags<Flag, std::uint8_t>;
 
 	class Builder;
-	class Signals;
 
 	Instance(Instance&&) noexcept;
 	Instance& operator=(Instance&&) noexcept;
 	~Instance() noexcept;
 
 	bool closing() const noexcept;
-	Time poll() noexcept;
-	Signals signals() const noexcept;
+	Poll poll() noexcept;
 
 	uvec2 framebufferSize() const noexcept;
 	uvec2 windowSize() const noexcept;
@@ -37,16 +40,14 @@ class Instance {
 
 class Frame {
   public:
-	using Clear = std::uint32_t;
-
-	[[nodiscard]] Frame(Instance const& instance, Clear clear = 0x222222ff);
+	[[nodiscard]] Frame(Instance const& instance, RGBA clear = {0x22, 0x22, 0x22});
 	~Frame();
 
 	bool ready() const noexcept;
 	uvec2 extent() const noexcept;
 
   private:
-	Clear m_clear;
+	RGBA m_clear;
 	Instance const& m_instance;
 	friend class Bridge;
 };
@@ -63,25 +64,5 @@ class Instance::Builder {
 	std::string m_title{"Untitled"};
 	uvec2 m_extent{1280U, 720U};
 	Flags m_flags;
-};
-
-class Instance::Signals {
-  public:
-	Signals(class Instance const& instance) noexcept : m_instance(instance) {}
-
-	[[nodiscard]] OnFocus::signal onFocus();
-	[[nodiscard]] OnResize::signal onWindowResize();
-	[[nodiscard]] OnResize::signal onFramebufferResize();
-	[[nodiscard]] OnClosed::signal onClosed();
-	[[nodiscard]] OnKeyEvent::signal onKeyEvent();
-	[[nodiscard]] OnText::signal onText();
-	[[nodiscard]] OnCursor::signal onCursor();
-	[[nodiscard]] OnMouseButton::signal onMouseButton();
-	[[nodiscard]] OnScroll::signal onScroll();
-	[[nodiscard]] OnMaximize::signal onMaximize();
-	[[nodiscard]] OnIconify::signal onIconify();
-
-  private:
-	Instance const& m_instance;
 };
 } // namespace dibs

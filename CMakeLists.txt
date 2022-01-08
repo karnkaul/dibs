@@ -36,6 +36,7 @@ endif()
 
 # options
 option(DIBS_BUILD_EXAMPLES "Build dibs examples" ${is_root_project})
+option(DIBS_UBSAN "Enable UBSan" OFF)
 
 # includes
 include(CheckPIESupported)
@@ -56,7 +57,6 @@ endif()
 
 # external
 add_subdirectory(ext)
-
 add_subdirectory(cmake/interface)	# import interface library
 
 # header text

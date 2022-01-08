@@ -5,10 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <detail/unique.hpp>
 #include <dibs/dibs.hpp>
-
-namespace dibs {
-struct Delegates;
-}
+#include <vector>
 
 namespace dibs::detail {
 struct GlfwInstance {
@@ -46,7 +43,7 @@ struct GlfwInstance {
 
 struct GlfwData {
 	GLFWwindow* window{};
-	Delegates* delegates{};
+	std::vector<Event>* events{};
 };
 
 using UniqueGlfw = Unique<GlfwInstance, GlfwInstance::Deleter>;

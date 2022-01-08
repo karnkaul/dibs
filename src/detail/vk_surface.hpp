@@ -1,9 +1,13 @@
 #pragma once
 #include <dibs/error.hpp>
 #include <dibs/vec2.hpp>
-#include <dibs/vk_types.hpp>
 #include <ktl/fixed_vector.hpp>
+#include <vulkan/vulkan.hpp>
 #include <optional>
+
+namespace dibs {
+struct VKDevice;
+}
 
 namespace dibs::detail {
 struct VKImage {

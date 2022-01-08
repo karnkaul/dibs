@@ -1,6 +1,6 @@
 #pragma once
 #include <detail/unique.hpp>
-#include <dibs/vk_types.hpp>
+#include <dibs/bridge.hpp>
 
 struct GLFWwindow;
 

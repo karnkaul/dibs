@@ -1,7 +1,64 @@
 #include <imgui.h>				 // Dear ImGui
 #include <dibs/dibs.hpp>		 // primary header
 #include <dibs/dibs_version.hpp> // version
+#include <ktl/stack_string.hpp>
 #include <iostream>
+
+namespace {
+struct DibsWindow {
+	struct {
+		dibs::MouseXY cursor{};
+		std::chrono::duration<float> elapsed{};
+		std::uint32_t frame{};
+		std::uint32_t lastFrame{};
+		std::uint32_t fps{};
+		dibs::RGBA clear = {0x66, 0x33, 0x33};
+	} state;
+	bool imguiDemo = true;
+
+	void update(dibs::Poll const& poll) noexcept {
+		using namespace std::chrono_literals;
+		using Type = dibs::Event::Type;
+		for (auto const event : poll.events) {
+			switch (event.type()) {
+			case Type::eClosed: std::cout << "closed\n"; break;
+			case Type::eCursor: state.cursor = event.cursor(); break;
+			default: break;
+			}
+		}
+		state.elapsed += poll.dt;
+		++state.frame;
+		if (state.elapsed >= 1s) {
+			state.elapsed = {};
+			state.fps = state.frame - std::exchange(state.lastFrame, state.frame);
+		}
+	}
+
+	void draw() {
+		using StackStr = ktl::stack_string<128>;
+		static int s_reset = 0;
+		ImGui::SetNextWindowSize({300.0f, 200.0f}, ImGuiCond_Once);
+		if (ImGui::Begin("dibs")) {
+			ImGui::Text("FPS: %u", state.fps);
+			ImGui::Text("Cursor: %f, %f", state.cursor.x, state.cursor.y);
+			ImGui::Text("Frame: %6u", state.frame);
+			ImGui::Separator();
+			auto array = state.clear.array();
+			if (ImGui::ColorEdit3("Clear", array.data())) { state.clear = dibs::RGBA::make(array); }
+			ImGui::NewLine();
+			if (ImGui::Button(StackStr("Reset State (%d)", s_reset).data())) {
+				state = {};
+				++s_reset;
+			}
+			ImGui::SameLine();
+			std::string_view const text = imguiDemo ? "Hide" : "Show";
+			if (ImGui::Button(StackStr("%s ImGui Demo", text.data()).data())) { imguiDemo = !imguiDemo; }
+		}
+		ImGui::End();
+		if (imguiDemo) { ImGui::ShowDemoWindow(&imguiDemo); }
+	}
+};
+} // namespace
 
 int main() {
 	std::cout << "dibs v" << dibs::version << '\n';
@@ -13,18 +70,14 @@ int main() {
 		std::cerr << "fail! error: " << (int)instance.error() << '\n';
 		return 0; // (this returns 0 for CI to not fail)
 	}
-	// obtain a signal for when the instance / window will be closed
-	auto closed = instance->signals().onClosed();
-	// attach a callback (auto detached on signal destruction)
-	closed += []() { std::cout << "closed\n"; };
 	// start main loop
+	DibsWindow window;
 	while (!instance->closing()) {
 		// poll events (and obtain delta time if required)
-		[[maybe_unused]] auto const dt = instance->poll();
+		window.update(instance->poll());
 		// start a new frame with the given clear colour
-		auto frame = dibs::Frame(*instance, 0x663333ff);
-		// tick / draw
-		static bool s_showDemo = true;
-		if (s_showDemo) { ImGui::ShowDemoWindow(&s_showDemo); }
+		auto frame = dibs::Frame(*instance, window.state.clear);
+		// draw
+		window.draw();
 	}
 }

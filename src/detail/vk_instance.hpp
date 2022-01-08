@@ -1,9 +1,8 @@
 #pragma once
+#include <dibs/bridge.hpp>
 #include <dibs/error.hpp>
-#include <dibs/vk_types.hpp>
 #include <ktl/async/kfunction.hpp>
 #include <ktl/enum_flags/enum_flags.hpp>
-#include <vulkan/vulkan.hpp>
 
 namespace dibs::detail {
 using MakeSurface = ktl::kfunction<vk::SurfaceKHR(vk::Instance)>;
