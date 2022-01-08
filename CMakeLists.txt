@@ -23,7 +23,7 @@ FetchContent_MakeAvailable(ktl)
 # project parameters
 set(project_name dibs)
 set(${project_name}_version_file dibs_version.hpp)
-set(${project_name}_version "0.9.0")
+set(${project_name}_version "0.9.1")
 set(${project_name}_soversion 0)
 set(cxx_standard cxx_std_20)
 

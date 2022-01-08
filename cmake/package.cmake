@@ -19,11 +19,18 @@ execute_process(
   COMMAND_ERROR_IS_FATAL ANY
 )
 
-message(STATUS "Building archive ${BUILD_DIR}/${FILENAME}.zip...")
+if(WIN32)
+  set(FILENAME ${FILENAME}.zip)
+  set(tar_cmd ${CMAKE_COMMAND} -E tar -c ../${FILENAME} --format=zip .)
+else()
+  set(FILENAME ${FILENAME}.tar.gz)
+  set(tar_cmd ${CMAKE_COMMAND} -E tar -cvfz ../${FILENAME} .)
+endif()
+message(STATUS "Building archive ${BUILD_DIR}/${FILENAME}...")
 execute_process(
-  COMMAND ${CMAKE_COMMAND} -E tar -c ../${FILENAME}.zip --format=zip .
+  COMMAND ${tar_cmd}
   WORKING_DIRECTORY ${BUILD_DIR}/install
   COMMAND_ERROR_IS_FATAL ANY
 )
 
-message(STATUS "${BUILD_DIR}/${FILENAME}.zip packaged successfully")
+message(STATUS "${BUILD_DIR}/${FILENAME} packaged successfully")

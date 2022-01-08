@@ -22,7 +22,7 @@ test_script:
       ctest -C Release || exit 1
 after_build:
   - cmd: move "build\package\dibs-Windows-x64.zip" "dibs-v@PROJECT_VERSION@-Windows-x64.zip"
-  - sh: mv build/package/dibs-Linux-x64.zip dibs-v@PROJECT_VERSION@-Linux-x64.zip
+  - sh: mv build/package/dibs-Linux-x64.tar.gz dibs-v@PROJECT_VERSION@-Linux-x64.tar.gz
 for:
   - matrix:
       only:
@@ -33,7 +33,7 @@ for:
       only:
         - job_name: Linux x64
     artifacts:
-      - path: dibs-v@PROJECT_VERSION@-Linux-x64.zip
+      - path: dibs-v@PROJECT_VERSION@-Linux-x64.tar.gz
 matrix:
   fast_finish: true
 skip_branch_with_pr: true
@@ -44,7 +44,7 @@ deploy:
     description: "Instigator: Appveyor CI script"
     auth_token:
       secure: Q4k4QeaxqXS7TIPI+dKfG8m2a8RTpP9G4sbpxhA9isKu3PgZywKwy5+ecPXyS7A5
-    artifact: dibs-v@PROJECT_VERSION@-Windows-x64.zip,dibs-v@PROJECT_VERSION@-Linux-x64.zip
+    artifact: dibs-v@PROJECT_VERSION@-Windows-x64.zip,dibs-v@PROJECT_VERSION@-Linux-x64.tar.gz
     draft: true
     on:
       APPVEYOR_REPO_TAG: true
