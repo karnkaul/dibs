@@ -1,44 +1,38 @@
 name: ci
 on: [push]
 jobs:
-  build-linux:
-    runs-on: ubuntu-latest
-    env:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            install: choco install
+            deps: ninja
+            system_name: Windows
+            extension: zip
+          - os: ubuntu-latest
+            install: sudo apt install -yqq
+            deps: ninja-build xorg-dev
+            system_name: Linux
+            extension: tar.gz
+    env: 
       VERSION: 0.9.0
     steps:
       - uses: actions/checkout@v2
       - name: install
         shell: bash
-        run: sudo apt update -yqq && sudo apt install -yqq xorg-dev ninja-build
+        run: ${{ matrix.install }} ${{ matrix.deps }}
       - name: build
         shell: bash
         run: |
           cp cmake/CMakePresets.json .
           cmake -P cmake/package.cmake
-          mv build/package/dibs-Linux-x64.tar.gz dibs-${{ env.VERSION }}-Linux-x64.tar.gz
+          mv build/package/dibs-${{ matrix.system_name }}-x64.${{ matrix.extension }} dibs-${{ env.VERSION }}-${{ matrix.system_name }}-x64.${{ matrix.extension }}
       - name: upload
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: dibs-${{ env.VERSION }}-Linux-x64.tar.gz
-          draft: true
-  build-windows:
-    runs-on: windows-latest
-    env:
-      VERSION: 0.9.0
-    steps:
-      - uses: actions/checkout@v2
-      - name: install
-        run: choco install ninja
-      - name: build
-        shell: bash
-        run: |
-          cp cmake/CMakePresets.json .
-          cmake -P cmake/package.cmake
-          mv build/package/dibs-Windows-x64.zip dibs-${{ env.VERSION }}-Windows-x64.zip
-      - name: upload
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: dibs-${{ env.VERSION }}-Windows-x64.zip
+          files: dibs-${{ env.VERSION }}-${{ matrix.system_name }}-x64.${{ matrix.extension }}
           draft: true
