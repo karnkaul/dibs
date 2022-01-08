@@ -1,4 +1,4 @@
-version: "1.0.0-{build}"
+version: "0.9.0-{build}"
 environment:
   matrix:
     - job_name: Windows x64
@@ -21,30 +21,30 @@ test_script:
       cd build/package/Release
       ctest -C Release || exit 1
 after_build:
-  - cmd: move "build\package\dibs-Windows-x64.zip" "dibs-v1.0.0-Windows.zip"
-  - sh: mv build/package/dibs-Linux-x64.zip dibs-v1.0.0-Linux.zip
+  - cmd: move "build\package\dibs-Windows-x64.zip" "dibs-v0.9.0-Windows-x64.zip"
+  - sh: mv build/package/dibs-Linux-x64.zip dibs-v0.9.0-Linux-x64.zip
 for:
   - matrix:
       only:
         - job_name: Windows x64
     artifacts:
-      - path: dibs-v1.0.0-Windows.zip
+      - path: dibs-v0.9.0-Windows-x64.zip
   - matrix:
       only:
         - job_name: Linux x64
     artifacts:
-      - path: dibs-v1.0.0-Linux.zip
+      - path: dibs-v0.9.0-Linux-x64.zip
 matrix:
   fast_finish: true
 skip_branch_with_pr: true
 deploy:
   - provider: GitHub
-    tag: "v1.0.0"
-    release: "dibs-v1.0.0"
+    tag: "v0.9.0"
+    release: "dibs-v0.9.0"
     description: "Instigator: Appveyor CI script"
     auth_token:
       secure: Q4k4QeaxqXS7TIPI+dKfG8m2a8RTpP9G4sbpxhA9isKu3PgZywKwy5+ecPXyS7A5
-    artifact: dibs-v1.0.0-Windows.zip,dibs-v1.0.0-Linux.zip
+    artifact: dibs-v0.9.0-Windows-x64.zip,dibs-v0.9.0-Linux-x64.zip
     draft: true
     on:
       APPVEYOR_REPO_TAG: true
