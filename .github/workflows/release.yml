@@ -1,5 +1,7 @@
 name: ci
-on: [push]
+on:
+  push:
+    tags: "v*.*"
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -17,14 +19,21 @@ jobs:
             deps: ninja-build xorg-dev
             system_name: Linux
             extension: tar.gz
+    env:
+      VERSION: 0.9.0
     steps:
       - uses: actions/checkout@v2
       - name: install
         shell: bash
         run: ${{ matrix.install }} ${{ matrix.deps }}
-      - name: build-Release
+      - name: build
         shell: bash
         run: |
           cp cmake/CMakePresets.json .
-          cmake -DBUILD_DIR=build -DBUILD_CONFIG=Release -P cmake/build.cmake
-          cd build/Release && ctest
+          cmake -P cmake/package.cmake
+          mv build/package/dibs-${{ matrix.system_name }}-x64.${{ matrix.extension }} dibs-${{ env.VERSION }}-${{ matrix.system_name }}-x64.${{ matrix.extension }}
+      - name: upload
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dibs-${{ env.VERSION }}-${{ matrix.system_name }}-x64.${{ matrix.extension }}
+          draft: true
