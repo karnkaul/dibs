@@ -20,6 +20,31 @@ test_script:
   - cmd: |
       cd build/package/Release
       ctest -C Release || exit 1
+after_build:
+  - cmd: move "build\package\dibs-Windows-x64.zip" "dibs-v1.0.0-Windows.zip"
+  - sh: mv build/package/dibs-Linux-x64.zip dibs-v1.0.0-Linux.zip
+for:
+  - matrix:
+      only:
+        - job_name: Windows x64
+    artifacts:
+      - path: dibs-v1.0.0-Windows.zip
+  - matrix:
+      only:
+        - job_name: Linux x64
+    artifacts:
+      - path: dibs-v1.0.0-Linux.zip
 matrix:
   fast_finish: true
 skip_branch_with_pr: true
+deploy:
+  - provider: GitHub
+    tag: "v1.0.0"
+    release: "dibs-v1.0.0"
+    description: "Instigator: Appveyor CI script"
+    auth_token:
+      secure: Q4k4QeaxqXS7TIPI+dKfG8m2a8RTpP9G4sbpxhA9isKu3PgZywKwy5+ecPXyS7A5
+    artifact: dibs-v1.0.0-Windows.zip,dibs-v1.0.0-Linux.zip
+    draft: true
+    on:
+      APPVEYOR_REPO_TAG: true
