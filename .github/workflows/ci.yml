@@ -1,0 +1,32 @@
+name: ci
+on: [push]
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    env:
+      VERSION: 0.9.0
+    steps:
+      - uses: actions/checkout@v2
+      - name: install
+        shell: bash
+        run: sudo apt update -yqq && sudo apt install -yqq xorg-dev ninja-build
+      - name: build
+        shell: bash
+        run: |
+          cp cmake/CMakePresets.json .
+          cmake -P cmake/package.cmake
+          mv build/package/dibs-Linux-x64.tar.gz dibs-${{ env.VERSION }}-Linux-x64.tar.gz
+  build-windows:
+    runs-on: windows-latest
+    env:
+      VERSION: 0.9.0
+    steps:
+      - uses: actions/checkout@v2
+      - name: install
+        run: choco install ninja
+      - name: build
+        shell: bash
+        run: |
+          cp cmake/CMakePresets.json .
+          cmake -P cmake/package.cmake
+          mv build/package/dibs-Windows-x64.zip dibs-${{ env.VERSION }}-Windows-x64.zip
