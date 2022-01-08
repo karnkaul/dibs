@@ -37,6 +37,7 @@ endif()
 # options
 option(DIBS_BUILD_EXAMPLES "Build dibs examples" ${is_root_project})
 option(DIBS_UBSAN "Enable UBSan" OFF)
+option(DIBS_CONFIGURE_CI "Configure CI scripts" is_root_project)
 
 # includes
 include(CheckPIESupported)
@@ -74,10 +75,10 @@ if(is_root_project AND "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
   message(STATUS "Exporting compile commands")
 endif()
 
-# appveyor
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.appveyor.yml.in")
-  message(STATUS "Configuring ${CMAKE_CURRENT_SOURCE_DIR}/.appveyor.yml.in")
-  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/.appveyor.yml.in" "${CMAKE_CURRENT_SOURCE_DIR}/.appveyor.yml")
+# ci
+if(DIBS_CONFIGURE_CI AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.github/workflows/release.yml.in")
+  message(STATUS "Configuring ${CMAKE_CURRENT_SOURCE_DIR}/.github/workflows/release.yml.in")
+  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/.github/workflows/release.yml.in" "${CMAKE_CURRENT_SOURCE_DIR}/.github/workflows/release.yml" @ONLY)
 endif()
 
 # library

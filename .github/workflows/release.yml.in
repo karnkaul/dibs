@@ -20,7 +20,7 @@ jobs:
             system_name: Linux
             extension: tar.gz
     env:
-      VERSION: 0.9.1
+      VERSION: @PROJECT_VERSION@
     steps:
       - uses: actions/checkout@v2
       - name: install
