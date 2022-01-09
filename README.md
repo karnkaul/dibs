@@ -13,75 +13,22 @@ A small quick-start library that provides a GLFW / Vulkan backend for Dear ImGui
 
 ## Usage
 
-`dibs` uses CMake as its build system and for installing / packaging releases (3.20+ required).
-
-### Requirements
-
-1. CMake 3.14+ (3.20+ recommended)
-1. C++20 compiler
-1. Windows / GNU-Linux with X/Wayland
-
-### Integration
-
-#### Build Source
-
-Manifest this repository somewhere in the project tree via git clone / git submodule / CMake FetchContent / etc., say to `ext/dibs`.
-
-```
-git submodule add https://github.com/karnkaul/dibs ext/dibs
-cd ext/dibs
-git checkout (tag / commit / branch)
-```
+Add project to build tree if building from source, or installed package path to `CMAKE_PREFIX_PATH`, and link to `dibs::dibs`.
 
 ```cmake
-include(FetchContent)
-FetchContent_Declare(
-  dibs
-  GIT_REPOSITORY https://github.com/karnkaul/dibs
-  # GIT_TAG (pin to a specific tag / commit)
-)
-FetchContent_MakeAvailable(dibs)
-```
+# build source
+add_subdirectory(path/to/dibs)
 
-Add the project to the build tree and link to `dibs::dibs`.
+# imported package
+find_package(dibs REQUIRED)
 
-```cmake
-add_subdirectory(ext/dibs)  # not needed with FetchContent
 add_executable(foo)
 target_link_libraries(foo PRIVATE dibs::dibs)
 ```
 
-Configure and build via CMake as usual.
+Include `dibs/dibs.hpp` and `imgui.h` and create a `dibs::Instance` to initialize `GLFW`, `Vulkan`, `Dear ImGui`, and create a window.
 
-```
-# copy presets
-cp cmake/CMakePresets.json .
-
-cmake -S . --preset=nc-debug
-cmake --build --preset=nc-debug
-```
-
-#### Shared Install / Pre-built
-
-Install / download the desired build configurations somewhere, say `~/install/dibs`.
-
-```
-cmake --install <binary_path> --prefix=~/install/dibs
-```
-
-Require `dibs` to be locatable in downstream projects.
-
-```cmake
-find_package(dibs REQUIRED)
-add_executable(bar)
-target_link_libraries(bar PRIVATE dibs::dibs)
-```
-
-Add the install path to `CMAKE_PREFIX_PATH` and pass it during configuration of downstream projects.
-
-```
-cmake -S . -DCMAKE_PREFIX_PATH=~/install/dibs
-```
+Refer to [the wiki](https://github.com/karnkaul/dibs/wiki) for more information.
 
 ### Example
 

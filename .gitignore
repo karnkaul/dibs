@@ -12,3 +12,4 @@ compile_commands.json
 
 examples/out/*
 imgui.ini
+wiki/*
