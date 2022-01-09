@@ -20,14 +20,17 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(ktl)
 
+# build version
+include(cmake/build_version.cmake)
+
 # project parameters
 set(project_name dibs)
 set(${project_name}_version_file dibs_version.hpp)
-set(${project_name}_version "0.9.2")
-set(${project_name}_soversion 0)
+set(${project_name}_version ${build_version})
 set(cxx_standard cxx_std_20)
 
 project(${project_name} VERSION "${${project_name}_version}")
+set(${project_name}_soversion ${PROJECT_VERSION_MAJOR})
 set(is_root_project OFF)	# indicate if this is the top-level project
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   set(is_root_project ON)
@@ -37,7 +40,6 @@ endif()
 # options
 option(DIBS_BUILD_EXAMPLES "Build dibs examples" ${is_root_project})
 option(DIBS_UBSAN "Enable UBSan" OFF)
-option(DIBS_CONFIGURE_CI "Configure CI scripts" is_root_project)
 
 # includes
 include(CheckPIESupported)
@@ -73,12 +75,6 @@ endif()
 if(is_root_project AND "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
   set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
   message(STATUS "Exporting compile commands")
-endif()
-
-# ci
-if(DIBS_CONFIGURE_CI AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.github/workflows/release.yml.in")
-  message(STATUS "Configuring ${CMAKE_CURRENT_SOURCE_DIR}/.github/workflows/release.yml.in")
-  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/.github/workflows/release.yml.in" "${CMAKE_CURRENT_SOURCE_DIR}/.github/workflows/release.yml" @ONLY)
 endif()
 
 # library

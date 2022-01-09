@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
+include(cmake/build_version.cmake)
+
 if("${FILENAME}" STREQUAL "")
-  set(FILENAME dibs-${CMAKE_HOST_SYSTEM_NAME}-x64)
+  set(FILENAME dibs-${build_version}-${CMAKE_HOST_SYSTEM_NAME}-x64)
 endif()
 if("${BUILD_DIR}" STREQUAL "")
   set(BUILD_DIR build/package)
