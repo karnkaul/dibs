@@ -44,7 +44,7 @@
 		{
 			"name": "vs19",
 			"description": "Build configuration using Visual Studio 16 (2019)",
-			"generator": "Visual Studio 16 (2019)",
+			"generator": "Visual Studio 16 2019",
 			"binaryDir": "out/vs",
 			"architecture": {
 				"value": "x64",
@@ -55,7 +55,7 @@
 			"name": "vs22",
 			"description": "Build configuration using Visual Studio 17 (2022)",
 			"inherits": "vs19",
-			"generator": "Visual Studio 17 (2022)"
+			"generator": "Visual Studio 17 2022"
 		},
 		{
 			"name": "nc-release",
