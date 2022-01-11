@@ -3,8 +3,8 @@
 #include <iostream>
 
 namespace dibs {
-constexpr bool debug_v =
-#if defined(DIBS_DEBUG)
+constexpr bool trace_v =
+#if defined(DIBS_DEBUG) && defined(DIBS_DEBUG_TRACE)
 	true;
 #else
 	false;
@@ -17,6 +17,6 @@ void log(std::string_view fmt, Args const&... args) {
 
 template <typename... Args>
 void trace(std::string_view fmt, Args const&... args) {
-	if constexpr (debug_v) { log(fmt, args...); }
+	if constexpr (trace_v) { log(fmt, args...); }
 }
 } // namespace dibs

@@ -37,6 +37,7 @@ install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-targets)
 install(FILES
     src/imconfig.h
     src/imgui.h
+    src/imgui_internal.h
     src/imconfig.h
     src/imstb_rectpack.h
     src/imstb_textedit.h

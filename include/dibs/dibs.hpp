@@ -5,12 +5,18 @@
 #include <ktl/enum_flags/enum_flags.hpp>
 #include <chrono>
 #include <memory>
+#include <optional>
 #include <span>
 
 namespace dibs {
 struct Poll {
 	std::span<Event const> events;
 	std::chrono::duration<float> dt{};
+};
+
+struct Bitmap {
+	std::span<std::uint8_t const> bytes;
+	uvec2 extent{};
 };
 
 class Instance {
@@ -29,6 +35,12 @@ class Instance {
 
 	uvec2 framebufferSize() const noexcept;
 	uvec2 windowSize() const noexcept;
+	std::string_view clipboard() const noexcept;
+	void clipboard(std::string_view text) noexcept;
+	void sizeLimits(std::optional<uvec2> min, std::optional<uvec2> max) noexcept;
+	void aspectRatio(float ratio) noexcept;
+	void title(std::string_view utf8) noexcept;
+	void icon(std::span<Bitmap const> bitmaps) noexcept;
 
   private:
 	struct Impl;
@@ -54,9 +66,9 @@ class Frame {
 
 class Instance::Builder {
   public:
-	void extent(uvec2 v) noexcept { m_extent = v; }
-	void title(std::string s) noexcept { m_title = std::move(s); }
-	void flags(Flags f) noexcept { m_flags = f; }
+	Builder& extent(uvec2 v) noexcept { return (m_extent = v, *this); }
+	Builder& title(std::string s) noexcept { return (m_title = std::move(s), *this); }
+	Builder& flags(Flags f) noexcept { return (m_flags = f, *this); }
 
 	Result<Instance> operator()() const;
 

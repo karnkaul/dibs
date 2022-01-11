@@ -5,6 +5,7 @@
 #include <detail/vk_instance.hpp>
 #include <detail/vk_surface.hpp>
 #include <dibs/dibs.hpp>
+#include <ktl/fixed_vector.hpp>
 
 namespace dibs {
 using Clock = std::chrono::steady_clock;
@@ -33,6 +34,13 @@ struct FrameSync {
 	void next() noexcept { index = (index + 1) % frames_v; }
 };
 
+namespace detail {
+struct EventStorage {
+	using Drop = std::vector<std::string>;
+	ktl::fixed_vector<Drop, 4> drops;
+};
+} // namespace detail
+
 struct Instance::Impl {
 	Glfw glfw;
 	detail::VKInstance vulkan;
@@ -43,6 +51,7 @@ struct Instance::Impl {
 	vk::UniqueRenderPass renderPass;
 	detail::UniqueImGui imgui;
 	std::vector<Event> events;
+	detail::EventStorage eventStorage;
 	std::optional<detail::VKSurface::Acquire> acquired;
 	Clock::time_point elapsed = Clock::now();
 };

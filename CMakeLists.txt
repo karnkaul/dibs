@@ -40,6 +40,7 @@ endif()
 # options
 option(DIBS_BUILD_EXAMPLES "Build dibs examples" ${is_root_project})
 option(DIBS_UBSAN "Enable UBSan" OFF)
+option(DIBS_DEBUG_TRACE "Enable debug trace messages" ${is_root_project})
 
 # includes
 include(CheckPIESupported)
@@ -106,6 +107,7 @@ target_link_libraries(${PROJECT_NAME}
     vk-bootstrap::vk-bootstrap
     ${PROJECT_NAME}::options
 )
+target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<BOOL:${DIBS_DEBUG_TRACE}>:DIBS_DEBUG_TRACE>)
 
 include(dibs_headers.cmake)
 add_subdirectory(src)

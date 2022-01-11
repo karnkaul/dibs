@@ -135,6 +135,13 @@ struct ImageBarrier {
 };
 } // namespace
 
+std::span<std::string const> Event::fileDrop() const noexcept {
+	if (m_type == Type::eFileDrop && detail::g_glfwData.eventStorage && m_payload.index < detail::g_glfwData.eventStorage->drops.size()) {
+		return detail::g_glfwData.eventStorage->drops[m_payload.index];
+	}
+	return {};
+}
+
 Instance::Instance(std::unique_ptr<Impl>&& impl) noexcept : m_impl(std::move(impl)) {}
 Instance::Instance(Instance&&) noexcept = default;
 Instance& Instance::operator=(Instance&&) noexcept = default;
@@ -153,6 +160,7 @@ bool Instance::closing() const noexcept {
 Poll Instance::poll() noexcept {
 	EXPECT(m_impl);
 	m_impl->events.clear();
+	m_impl->eventStorage = {};
 	glfwPollEvents();
 	auto const t = Clock::now();
 	Poll ret;
@@ -163,6 +171,30 @@ Poll Instance::poll() noexcept {
 
 uvec2 Instance::framebufferSize() const noexcept { return getFramebufferSize(m_impl->glfw.window); }
 uvec2 Instance::windowSize() const noexcept { return getWindowSize(m_impl->glfw.window); }
+std::string_view Instance::clipboard() const noexcept {
+	auto const ret = glfwGetClipboardString(nullptr);
+	return ret ? ret : std::string_view();
+}
+void Instance::clipboard(std::string_view text) noexcept { glfwSetClipboardString(nullptr, text.data()); }
+void Instance::sizeLimits(std::optional<uvec2> min, std::optional<uvec2> max) noexcept {
+	int const minX = min ? int(min->x) : GLFW_DONT_CARE;
+	int const maxX = max ? int(max->x) : GLFW_DONT_CARE;
+	int const minY = min ? int(min->y) : GLFW_DONT_CARE;
+	int const maxY = max ? int(max->y) : GLFW_DONT_CARE;
+	glfwSetWindowSizeLimits(m_impl->glfw.window, minX, minY, maxX, maxY);
+}
+
+void Instance::aspectRatio(float ratio) noexcept { glfwSetWindowAspectRatio(m_impl->glfw.window, int(ratio * 1000.0f), 1000); }
+void Instance::title(std::string_view utf8) noexcept { glfwSetWindowTitle(m_impl->glfw.window, utf8.data()); }
+
+void Instance::icon(std::span<const Bitmap> bitmaps) noexcept {
+	std::vector<GLFWimage> images;
+	images.reserve(bitmaps.size());
+	for (auto const bitmap : bitmaps) {
+		images.push_back(GLFWimage{int(bitmap.extent.x), int(bitmap.extent.y), const_cast<unsigned char*>(bitmap.bytes.data())});
+	}
+	glfwSetWindowIcon(m_impl->glfw.window, int(images.size()), images.data());
+}
 
 Frame::Frame(Instance const& instance, RGBA const clear) : m_clear(clear), m_instance(instance) {
 	EXPECT(m_instance.m_impl && !m_instance.m_impl->acquired); // must not have already acquired an image
@@ -262,7 +294,7 @@ Result<Instance> Instance::Builder::operator()() const {
 	impl->renderPass = std::move(renderPass);
 	impl->imgui = std::move(imgui);
 	impl->events.reserve(512U);
-	detail::g_glfwData = {impl->glfw.window, &impl->events};
+	detail::g_glfwData = {impl->glfw.window, &impl->events, &impl->eventStorage};
 	if (!m_flags.test(Flag::eHidden)) { glfwShowWindow(impl->glfw.window); }
 	return Instance(std::move(impl));
 }

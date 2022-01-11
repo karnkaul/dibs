@@ -41,9 +41,12 @@ struct GlfwInstance {
 	}
 };
 
+struct EventStorage;
+
 struct GlfwData {
 	GLFWwindow* window{};
 	std::vector<Event>* events{};
+	EventStorage* eventStorage{};
 };
 
 using UniqueGlfw = Unique<GlfwInstance, GlfwInstance::Deleter>;

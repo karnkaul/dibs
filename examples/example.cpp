@@ -23,6 +23,11 @@ struct DibsWindow {
 			switch (event.type()) {
 			case Type::eClosed: std::cout << "closed\n"; break;
 			case Type::eCursor: state.cursor = event.cursor(); break;
+			case Type::eFileDrop: {
+				std::cout << "Files dropped:\n";
+				for (auto const& path : event.fileDrop()) { std::cout << " - " << path << '\n'; }
+				break;
+			}
 			default: break;
 			}
 		}
