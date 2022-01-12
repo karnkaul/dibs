@@ -18,7 +18,7 @@ set(VK_BOOTSTRAP_VULKAN_HEADER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/dyvk/include" CA
 if(NOT EXISTS "${VK_BOOTSTRAP_VULKAN_HEADER_DIR}/vulkan/vulkan.h")
   message(FATAL_ERROR "Missing vulkan headers")
 endif()
-
+set(VK_BOOTSTRAP_INSTALL ${DIBS_INSTALL})
 add_subdirectory(vk-bootstrap)
 if(DIBS_INSTALL)
   install(EXPORT vk-bootstrap-targets
