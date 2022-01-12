@@ -33,20 +33,22 @@ target_sources(${PROJECT_NAME} PRIVATE
 )
 target_source_group(TARGET ${PROJECT_NAME})
 
-install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-targets)
-install(FILES
-    src/imconfig.h
-    src/imgui.h
-    src/imgui_internal.h
-    src/imconfig.h
-    src/imstb_rectpack.h
-    src/imstb_textedit.h
-    src/imstb_truetype.h
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-install(EXPORT dear-imgui-targets
-  FILE dear-imgui-targets.cmake
-  NAMESPACE dear-imgui::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${project_name}
-)
-export(EXPORT dear-imgui-targets)
+if(DIBS_INSTALL)
+  install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-targets)
+  install(FILES
+      src/imconfig.h
+      src/imgui.h
+      src/imgui_internal.h
+      src/imconfig.h
+      src/imstb_rectpack.h
+      src/imstb_textedit.h
+      src/imstb_truetype.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  )
+  install(EXPORT dear-imgui-targets
+    FILE dear-imgui-targets.cmake
+    NAMESPACE dear-imgui::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${project_name}
+  )
+  export(EXPORT dear-imgui-targets)
+endif()

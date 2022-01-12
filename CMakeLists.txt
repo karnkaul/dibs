@@ -10,13 +10,25 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "")
   set(CMAKE_BUILD_TYPE Debug)			# ensure CMAKE_BUILD_TYPE is not empty
 endif()
 
+# options
+option(DIBS_BUILD_EXAMPLES "Build dibs examples" ${is_root_project})
+option(DIBS_UBSAN "Enable UBSan" OFF)
+option(DIBS_DEBUG_TRACE "Enable debug trace messages" ${is_root_project})
+option(DIBS_INSTALL "Install dibs" ${is_root_project})
+
 # ktl
+if(DIBS_INSTALL)
+  set(KTL_INSTALL ON)
+  if(NOT KTL_INSTALL)
+    message(WARNING "Invalid INSTALL flags")
+  endif()
+endif()
 include(FetchContent)
 set(FETCHCONTENT_QUIET OFF)
 FetchContent_Declare(
   ktl
   GIT_REPOSITORY https://github.com/karnkaul/ktl
-  GIT_TAG a6c5f32
+  GIT_TAG 378651d
 )
 FetchContent_MakeAvailable(ktl)
 
@@ -36,11 +48,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   set(is_root_project ON)
   message(STATUS "${PROJECT_NAME} is top level")
 endif()
-
-# options
-option(DIBS_BUILD_EXAMPLES "Build dibs examples" ${is_root_project})
-option(DIBS_UBSAN "Enable UBSan" OFF)
-option(DIBS_DEBUG_TRACE "Enable debug trace messages" ${is_root_project})
 
 # includes
 include(CheckPIESupported)
@@ -122,19 +129,21 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/${${project_name}_version_file}.in")
   )
 endif()
 
-install(TARGETS ${PROJECT_NAME} interface options EXPORT ${PROJECT_NAME}-targets)
-install(EXPORT ${PROJECT_NAME}-targets
-  FILE ${PROJECT_NAME}-targets.cmake
-  NAMESPACE ${PROJECT_NAME}::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-)
-install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/" "${CMAKE_CURRENT_BINARY_DIR}/include/"
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-  FILES_MATCHING PATTERN "*.hpp"
-)
-install_package_config(PACKAGE ${PROJECT_NAME})
-install_package_version(PACKAGE ${PROJECT_NAME} VERSION ${${PROJECT_NAME}_version})
-export_package_to_build_tree(PACKAGE ${PROJECT_NAME})
+if(DIBS_INSTALL)
+  install(TARGETS ${PROJECT_NAME} interface options EXPORT ${PROJECT_NAME}-targets)
+  install(EXPORT ${PROJECT_NAME}-targets
+    FILE ${PROJECT_NAME}-targets.cmake
+    NAMESPACE ${PROJECT_NAME}::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+  )
+  install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/" "${CMAKE_CURRENT_BINARY_DIR}/include/"
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILES_MATCHING PATTERN "*.hpp"
+  )
+  install_package_config(PACKAGE ${PROJECT_NAME})
+  install_package_version(PACKAGE ${PROJECT_NAME} VERSION ${${PROJECT_NAME}_version})
+  export_package_to_build_tree(PACKAGE ${PROJECT_NAME})
+endif()
 
 # examples
 if(DIBS_BUILD_EXAMPLES)
