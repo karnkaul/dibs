@@ -12,7 +12,7 @@ constexpr bool trace_v =
 
 template <typename... Args>
 void log(std::string_view fmt, Args const&... args) {
-	std::cout << ktl::format(fmt, args...) << '\n';
+	std::cout << ktl::str_format(fmt, args...) << '\n';
 }
 
 template <typename... Args>

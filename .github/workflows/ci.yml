@@ -27,7 +27,7 @@ jobs:
       - name: init
         run: choco install ninja
       - name: configure
-        run: cp cmake/CMakePresets.json . && cmake -S . --preset=vs19 -B build
+        run: cp cmake/CMakePresets.json . && cmake -S . --preset=vs22 -B build
       - name: build
         run: cmake --build build --config=Release
       - name: test

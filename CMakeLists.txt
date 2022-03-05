@@ -2,12 +2,13 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 enable_language(CXX)
 
-set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)					# don't let OPTION erase non-cache variables
-set(CMAKE_CXX_EXTENSIONS OFF CACHE INTERNAL "" FORCE)	# disable compiler extensions
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)					# enable PIC
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW) # don't let OPTION erase non-cache variables
+set(CMAKE_CXX_EXTENSIONS OFF CACHE INTERNAL "" FORCE) # disable compiler extensions
+set(CMAKE_POSITION_INDEPENDENT_CODE ON) # enable PIC
 set(CMAKE_DEBUG_POSTFIX "-d")
+
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
-  set(CMAKE_BUILD_TYPE Debug)			# ensure CMAKE_BUILD_TYPE is not empty
+  set(CMAKE_BUILD_TYPE Debug) # ensure CMAKE_BUILD_TYPE is not empty
 endif()
 
 # options
@@ -19,16 +20,18 @@ option(DIBS_INSTALL "Install dibs" ${is_root_project})
 # ktl
 if(DIBS_INSTALL)
   set(KTL_INSTALL ON)
+
   if(NOT KTL_INSTALL)
     message(WARNING "Invalid INSTALL flags")
   endif()
 endif()
+
 include(FetchContent)
 set(FETCHCONTENT_QUIET OFF)
 FetchContent_Declare(
   ktl
   GIT_REPOSITORY https://github.com/karnkaul/ktl
-  GIT_TAG 378651d
+  GIT_TAG 9db001b
 )
 FetchContent_MakeAvailable(ktl)
 
@@ -43,7 +46,8 @@ set(cxx_standard cxx_std_20)
 
 project(${project_name} VERSION "${${project_name}_version}")
 set(${project_name}_soversion ${PROJECT_VERSION_MAJOR})
-set(is_root_project OFF)	# indicate if this is the top-level project
+set(is_root_project OFF) # indicate if this is the top-level project
+
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   set(is_root_project ON)
   message(STATUS "${PROJECT_NAME} is top level")
@@ -52,30 +56,35 @@ endif()
 # includes
 include(CheckPIESupported)
 check_pie_supported()
-include(cmake/platform.cmake)	# set up helper cache variables
+include(cmake/platform.cmake) # set up helper cache variables
 
 # git operations
 find_package(Git QUIET)
+
 if(GIT_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git")
-  git_get_commit_hash(${PROJECT_NAME}_GIT_COMMIT_HASH)	# store commit hash in ${PROJECT_NAME}_GIT_COMIT_HASH
+  git_get_commit_hash(${PROJECT_NAME}_GIT_COMMIT_HASH) # store commit hash in ${PROJECT_NAME}_GIT_COMIT_HASH
+
   if(is_root_project)
     option(GIT_UPDATE_SUBMODULES "Init/Update submodules during generation" ${is_root_project})
+
     if(GIT_UPDATE_SUBMODULES)
-      git_update_submodules(WARNING)	# update git submodules and warn on failure
+      git_update_submodules(WARNING) # update git submodules and warn on failure
     endif()
   endif()
 endif()
 
 # external
 add_subdirectory(ext)
-add_subdirectory(cmake/interface)	# import interface library
+add_subdirectory(cmake/interface) # import interface library
 
 # header text
 if(is_root_project)
   set(build_config ${CMAKE_BUILD_TYPE})
+
   if(CMAKE_CONFIGURATION_TYPES)
     set(build_config "Multi-config")
   endif()
+
   message(STATUS "[${CMAKE_SYSTEM_PROCESSOR}] [${PLATFORM}] [${CMAKE_GENERATOR}] [${CMAKE_CXX_COMPILER_ID}] [${build_config}]")
 endif()
 
@@ -98,21 +107,21 @@ target_include_directories(${PROJECT_NAME} SYSTEM INTERFACE
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
   "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
 )
-target_include_directories(${PROJECT_NAME} PRIVATE 
+target_include_directories(${PROJECT_NAME} PRIVATE
   include
   src
   "${CMAKE_CURRENT_BINARY_DIR}/include"
 )
-target_link_libraries(${PROJECT_NAME} 
+target_link_libraries(${PROJECT_NAME}
   PUBLIC
-    glfw
-    ktl::ktl
-    dyvk::dyvk
-    dear-imgui::dear-imgui
-    ${PROJECT_NAME}::interface
+  glfw
+  ktl::ktl
+  dyvk::dyvk
+  dear-imgui::dear-imgui
+  ${PROJECT_NAME}::interface
   PRIVATE
-    vk-bootstrap::vk-bootstrap
-    ${PROJECT_NAME}::options
+  vk-bootstrap::vk-bootstrap
+  ${PROJECT_NAME}::options
 )
 target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<BOOL:${DIBS_DEBUG_TRACE}>:DIBS_DEBUG_TRACE>)
 
@@ -123,7 +132,7 @@ target_source_group(TARGET ${PROJECT_NAME})
 # version
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/${${project_name}_version_file}.in")
   configure_src_bin(
-    IN src/${${project_name}_version_file}.in 
+    IN src/${${project_name}_version_file}.in
     OUT ${project_name}/${${project_name}_version_file}
     TARGET ${project_name}
   )
