@@ -1,7 +1,7 @@
 #include <imgui.h>				 // Dear ImGui
 #include <dibs/dibs.hpp>		 // primary header
 #include <dibs/dibs_version.hpp> // version
-#include <ktl/stack_string.hpp>
+#include <ktl/kformat.hpp>
 #include <iostream>
 
 namespace {
@@ -40,7 +40,6 @@ struct DibsWindow {
 	}
 
 	void draw() {
-		using StackStr = ktl::stack_string<128>;
 		static int s_reset = 0;
 		ImGui::SetNextWindowSize({300.0f, 200.0f}, ImGuiCond_Once);
 		if (ImGui::Begin("dibs")) {
@@ -51,13 +50,13 @@ struct DibsWindow {
 			auto array = state.clear.array();
 			if (ImGui::ColorEdit3("Clear", array.data())) { state.clear = dibs::RGBA::make(array); }
 			ImGui::NewLine();
-			if (ImGui::Button(StackStr("Reset State (%d)", s_reset).data())) {
+			if (ImGui::Button(ktl::kformat("Reset State ({})", s_reset).c_str())) {
 				state = {};
 				++s_reset;
 			}
 			ImGui::SameLine();
 			std::string_view const text = imguiDemo ? "Hide" : "Show";
-			if (ImGui::Button(StackStr("%s ImGui Demo", text.data()).data())) { imguiDemo = !imguiDemo; }
+			if (ImGui::Button(ktl::kformat("{} ImGui Demo", text.data()).data())) { imguiDemo = !imguiDemo; }
 		}
 		ImGui::End();
 		if (imguiDemo) { ImGui::ShowDemoWindow(&imguiDemo); }

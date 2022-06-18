@@ -1,5 +1,5 @@
 #pragma once
-#include <ktl/str_format.hpp>
+#include <ktl/kformat.hpp>
 #include <iostream>
 
 namespace dibs {
@@ -12,7 +12,7 @@ constexpr bool trace_v =
 
 template <typename... Args>
 void log(std::string_view fmt, Args const&... args) {
-	std::cout << ktl::str_format(fmt, args...) << '\n';
+	std::cout << ktl::kformat(fmt, args...) << '\n';
 }
 
 template <typename... Args>

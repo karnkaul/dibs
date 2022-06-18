@@ -283,7 +283,7 @@ Result<Instance> Instance::Builder::operator()() const {
 	auto imgui = detail::ImGuiInstance::make(vkd, {glfw->window, *renderPass, 2U, surface.info.minImageCount});
 	if (!imgui) { return Error::ImGuiInitFailure; }
 	// all checks passed
-	log("Using GPU: {}", vulkan->gpu.properties.deviceName);
+	log("Using GPU: {}", std::string(vulkan->gpu.properties.deviceName.begin(), vulkan->gpu.properties.deviceName.end()));
 	auto impl = std::make_unique<Instance::Impl>();
 	impl->glfw = std::move(glfw).value();
 	impl->vulkan = std::move(vulkan).value();
